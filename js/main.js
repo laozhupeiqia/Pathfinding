@@ -78,12 +78,12 @@ function drawGrid() {
   canvas.height = h;
 
   // Background
-  ctx.fillStyle = '#181825';
+  ctx.fillStyle = '#fafbfc';
   ctx.fillRect(0, 0, w, h);
 
-  // Closed set (explored)
+  // Closed set (explored) — light blue tint
   if (searchState) {
-    ctx.fillStyle = '#334155';
+    ctx.fillStyle = '#dbeafe';
     for (const key of searchState.closed) {
       const [r, c] = key.split(',').map(Number);
       ctx.fillRect(c * cs, r * cs, cs, cs);
@@ -92,15 +92,15 @@ function drawGrid() {
 
   // Open set (to explore)
   if (searchState) {
-    ctx.fillStyle = '#60a5fa';
+    ctx.fillStyle = '#3b82f6';
     for (const key of searchState.open) {
       const [r, c] = key.split(',').map(Number);
       ctx.fillRect(c * cs, r * cs, cs, cs);
     }
   }
 
-  // Walls
-  ctx.fillStyle = '#1e293b';
+  // Walls — dark, clearly visible on white
+  ctx.fillStyle = '#374151';
   for (const key of walls) {
     const [r, c] = key.split(',').map(Number);
     ctx.fillRect(c * cs, r * cs, cs, cs);
@@ -108,15 +108,15 @@ function drawGrid() {
 
   // Final path
   if (searchState && searchState.path) {
-    ctx.fillStyle = '#fbbf24';
+    ctx.fillStyle = '#eab308';
     for (const p of searchState.path) {
       ctx.fillRect(p.col * cs, p.row * cs, cs, cs);
     }
   }
 
   // Grid lines
-  ctx.strokeStyle = '#2a3a5c';
-  ctx.lineWidth = 0.5;
+  ctx.strokeStyle = '#d1d5db';
+  ctx.lineWidth = 1;
   for (let c = 0; c <= cols; c++) {
     const x = c * cs;
     ctx.beginPath();
