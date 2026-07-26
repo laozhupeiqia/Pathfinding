@@ -60,6 +60,30 @@ function populateAlgoSelect() {
 // ==============================
 // Drawing
 // ==============================
+function drawArrow(ctx, cx, cy, dr, dc, cs) {
+  // dr = row change (↓↑), dc = col change (→←)
+  // canvas: x axis = col, y axis = row
+  const len = cs * 0.35;
+  const wing = cs * 0.16;
+  const baseBack = cs * 0.12;
+
+  // tip in the direction (dc, dr) in canvas coordinates
+  const tipX = cx + dc * len;
+  const tipY = cy + dr * len;
+  // base slightly behind center
+  const bx = cx - dc * baseBack;
+  const by = cy - dr * baseBack;
+  // perpendicular to direction (dc, dr) for wing spread
+  const perpX = dr * wing;
+  const perpY = -dc * wing;
+
+  ctx.beginPath();
+  ctx.moveTo(tipX, tipY);
+  ctx.lineTo(bx + perpX, by + perpY);
+  ctx.lineTo(bx - perpX, by - perpY);
+  ctx.closePath();
+  ctx.fill();
+}
 function getCellSize(rows, cols) {
   const maxW = Math.min(800, window.innerWidth - 360);
   const maxH = Math.min(700, window.innerHeight - 120);
@@ -81,8 +105,8 @@ function drawGrid() {
   ctx.fillStyle = '#fafbfc';
   ctx.fillRect(0, 0, w, h);
 
-  // Closed set (explored) — light blue tint
-  if (searchState) {
+  // Closed set (explored) — skip for flow field (uses arrows instead)
+  if (searchState && !searchState.isFlowField) {
     ctx.fillStyle = '#dbeafe';
     for (const key of searchState.closed) {
       const [r, c] = key.split(',').map(Number);
@@ -90,8 +114,8 @@ function drawGrid() {
     }
   }
 
-  // Open set (to explore)
-  if (searchState) {
+  // Open set (to explore) — skip for flow field
+  if (searchState && !searchState.isFlowField) {
     ctx.fillStyle = '#3b82f6';
     for (const key of searchState.open) {
       const [r, c] = key.split(',').map(Number);
@@ -130,6 +154,18 @@ function drawGrid() {
     ctx.moveTo(0, y);
     ctx.lineTo(w, y);
     ctx.stroke();
+  }
+
+  // Flow field arrows
+  if (searchState && searchState.flowField && cs >= 8) {
+    ctx.fillStyle = '#475569';
+    for (const [key, dir] of searchState.flowField) {
+      if (walls.has(key)) continue;
+      const [r, c] = key.split(',').map(Number);
+      const cx = c * cs + cs / 2;
+      const cy = r * cs + cs / 2;
+      drawArrow(ctx, cx, cy, dir.dr, dir.dc, cs);
+    }
   }
 
   // Start
